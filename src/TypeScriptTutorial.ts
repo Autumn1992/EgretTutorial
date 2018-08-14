@@ -8,6 +8,8 @@ class TypeScriptTutorial {
     private showTutorial(): void {
 
         this.basicDataTypeTutorial();
+        this.ShowInterfaceTutorial();
+        this.ShowMixInterface();
     }
 
     /**
@@ -141,6 +143,59 @@ class TypeScriptTutorial {
     */
     private ShowInterfaceTutorial() :void {
 
+        let digital = createClock(DigitalClock, 12, 17);
+        let analog = createClock(AnalogClock, 7, 32);  
+    }
 
+    getCounter(): Counter {
+        let counter = <Counter>function (start: number) { return "counter:" + start; };
+        counter.interval = 123;
+        counter.reset = function () { };
+        return counter;
+    }
+
+    private ShowMixInterface() {
+        let c = this.getCounter();
+        console.log(c(10));
+        c.reset();
+        c.interval = 5.0;
+    }
+}
+
+interface Counter {
+    //#函数签名
+    (start: number): string; 
+    interval: number;
+    reset(): void;
+} 
+       
+
+interface ClockConstructor {
+    new (hour: number, minute: number): ClockInterface;
+}
+interface ClockInterface {
+    tick();
+}
+
+function createClock(ctor: ClockConstructor, hour: number, minute: number): ClockInterface {
+    return new ctor(hour, minute);
+}
+
+class DigitalClock implements ClockInterface {
+    constructor(h: number, m: number) { 
+
+         console.log("DigitalClock constructor");
+    }
+    tick() {
+        console.log("beep beep");
+    }
+}
+class AnalogClock implements ClockInterface {
+    constructor(h: number, m: number) { 
+
+        console.log("AnalogClock constructor");
+    }
+    tick() {
+        console.log("tick tock");
     }
 }

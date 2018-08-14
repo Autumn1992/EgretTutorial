@@ -80,5 +80,167 @@
             对象展开只能展开对象的自身的可枚举属性。 不可展开接口
 
 
-
+#默认接口及class的作用域是public
 ############接口
+            #TypeScript的核心原则之一是对值所具有的结构进行类型检查
+            #TypeScript里，接口的作用就是为这些类型命名和为你的代码或第三方代码定义契约
+            interface 接口名{ 变量名: 变量类型 } 一般用于函数参数做类型及结构检查
+            可选属性 用变量名?: 变量类型 定义
+            readonly修饰属性 只能在创建时赋值 
+
+            ReadonlyArray<T> 只读不可修改和C#的readonly还不太一样 是真的只读不可赋值 只能get
+            但可以通过as转换后赋值给其它变量   
+            const和readonly 是看要把它做为变量使用还是做为一个属性。 做为变量使用的话用 const，若做为属性则使用readonly
+
+            #接口的额外属性检查 传入不存在的属性 error: '属性名' not expected in type '接口名'
+            ##绕开额外属性检查  传入参数时先进行类型断言将参数转换成相应接口
+                               //字符串索引签名
+                               或是在接口中额外定义[propName: string]: any;表明接口会带有其它任意数量的其它属性
+                               #不建议的一种绕开检查方式
+                               let squareOptions = { colour: "red", width: 100 };
+                               let mySquare = createSquare(squareOptions);
+                               将这个对象赋值给一个另一个变量： 因为 squareOptions不会经过额外属性检查，所以编译器不会报错
+                               很low的方式 而且容易出bug 在写出可读性代码的前提下 写出这种代码可能同时
+                               违背了你想要进行额外属性检查的初衷
+
+
+####函数类型 接口也可以描述函数类型
+#接口表示函数类型,给接口定义一个调用签名。是一个只有参数列表和返回值类型的函数定义。参数列表里的每个参数都需要名字和类型。
+            参数名字不需要匹配 但参数类型会依次检查是否兼容
+            参数名可以不指定类型 但是TypeScript会根据定义的接口类型自动做推断出参数类型并编译
+
+####可索引的类型 可索引类型具有一个索引签名 它用于描述对象索引的类型 还有相应的索引返回值类型
+            interface StringArray { [index: number]: string; }
+            let myArray: StringArray;
+            myArray = ["Bob", "Fred"]; //索引从0开始
+            #是否可以同时定义Add Remove之类的接口吗 类似做List接口？
+
+            ##共有支持两种索引签名：字符串和数字。可以同时使用两种类型的索引，但是数字索引的返回值必须是
+            字符串索引返回值类型的子类型。 这是因为当使用 number来索引时，JavaScript会将它转换成string
+            然后再去索引对象。 也就是说用 100（一个number）去索引等同于使用"100"（一个string）去索引，
+            因此两者需要保持一致
+            class Animal {
+                name: string;
+            }
+            class Dog extends Animal {
+                breed: string;
+            }
+            // 错误：使用数值型的字符串索引，有时会得到完全不同的Animal!
+            interface NotOkay {
+                [x: number]: Animal;
+                [x: string]: Dog;
+            }
+
+            #字符串索引签名能够很好的描述dictionary模式，并且它们也会确保所有属性与其返回值类型相匹配。
+            #字符串索引声明了 obj.property和obj["property"]两种形式都可以
+            #即name属性的访问和index的访问是一样的 最终index会先转换成string作为index去索引
+            interface NumberDictionary {
+                [index: string]: number;
+                length: number;    // 可以，length是number类型
+                name: string;      // 错误，`name`的类型与索引类型返回值的类型不匹配
+            }
+            #索引签名可以设置为只读 那么赋值后就不可再对索引赋值
+
+
+#########面向对象相关关键字
+#extends        继承class
+#implements     实现接口 
+#constructor    类构造器
+
+
+####接口表示类类型
+            #类实现一个接口时，只会对实例部分进行类型检查 静态部分不会检查(构造方法属于静态部分)
+            #当你用构造器签名去定义一个接口并试图定义一个类去实现这个接口时会得到一个错误
+            interface ClockConstructor {
+                new (hour: number, minute: number);
+            }
+
+            class Clock implements ClockConstructor {
+                currentTime: Date;
+                constructor(h: number, m: number) { }
+            }
+            #此处是实现了new接口的 但是constructor属于静态部分 不会做检查 编译器会报错说提供new签名接口
+            #因此，我们应该直接操作类的静态部分 下面的例子，我们定义了两个接口， 
+            ClockConstructor为构造函数所用和ClockInterface为实例方法所用
+            #下面的示例ClockConstructor接口的工作原理类似于C#的where T : Object做类型约束
+            #此处的new ctor(hour, minute)的运作及执行流程原理有点迷糊
+            interface ClockConstructor {
+                //单纯约束有个(hour: number, minute: number)的构造器且实现了ClockInterface
+                new (hour: number, minute: number): ClockInterface;
+            }
+            interface ClockInterface {
+                tick();
+            }
+            function createClock(ctor: ClockConstructor, hour: number, minute: number): ClockInterface {
+                return new ctor(hour, minute);
+            }
+            class DigitalClock implements ClockInterface {
+                constructor(h: number, m: number) { }
+                tick() {
+                    console.log("beep beep");
+                }
+            }
+            class AnalogClock implements ClockInterface {
+                constructor(h: number, m: number) { }
+                tick() {
+                    console.log("tick tock");
+                }
+            }
+            let digital = createClock(DigitalClock, 12, 17);
+            let analog = createClock(AnalogClock, 7, 32);
+
+
+####继承接口
+        #接口之间可以继承 且可以多继承
+        interface Shape { color: string; }
+        interface Square extends Shape { sideLength: number; } 
+        #类型转换 类型断言
+        let square = <Square>{ };  square.color = "blue"; square.sideLength = 10;
+
+####混合类型
+        #一个对象可以同时做为函数和对象使用，并带有额外的属性。
+        interface Counter {
+            #函数签名 返回值string
+            (start: number): string; 
+            interval: number;
+            reset(): void;
+        } 
+        function getCounter(): Counter {
+            let counter = <Counter>function (start: number) { };
+            counter.interval = 123;
+            counter.reset = function () { };
+            return counter;
+        }
+        let c = getCounter();
+        c(10);
+        c.reset();
+        c.interval = 5.0;
+
+####接口继承类 很神的逻辑 弱类型约束的TypeScript有些语法和规则好奇特 感觉容易把人搞迷糊
+        当接口继承了一个类类型时，它会继承类的成员但不包括其实现。 就好像接口声明了所有类中存在的成员，
+        但并没有提供具体实现一样。 接口同样会继承到类的private和protected成员。 这意味着当你创建了一
+        个接口继承了一个拥有私有或受保护的成员的类时，这个接口类型只能被这个类或其子类所实现（implement）。
+        当你有一个庞大的继承结构时这很有用，但要指出的是你的代码只在子类拥有特定属性时起作用。 这个子类除了
+        继承至基类外与基类没有任何关系。 例：
+        class Control {
+            private state: any;
+        }
+        interface SelectableControl extends Control {
+            select(): void;
+        }
+        class Button extends Control implements SelectableControl {
+            select() { }
+        }
+        class TextBox extends Control {
+            select() { }
+        }
+        // 错误：“Image”类型缺少“state”属性。
+        class Image implements SelectableControl {
+            select() { }
+        }
+        class Location {
+
+        }
+        在上面的例子里，SelectableControl包含了Control的所有成员，包括私有成员state。 因为 state是私有成员，
+        所以只能够是Control的子类们才能实现SelectableControl接口。 因为只有 Control的子类才能够拥有一个声明
+        于Control的私有成员state，###！！！这对私有成员的兼容性是必需的。

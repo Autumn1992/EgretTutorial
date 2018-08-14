@@ -7,6 +7,8 @@ var TypeScriptTutorial = (function () {
     }
     TypeScriptTutorial.prototype.showTutorial = function () {
         this.basicDataTypeTutorial();
+        this.ShowInterfaceTutorial();
+        this.ShowMixInterface();
     };
     /**
      * 基础数据类型
@@ -109,7 +111,49 @@ var TypeScriptTutorial = (function () {
             _loop_1(i_3);
         }
     };
+    /*
+    * 接口
+    */
+    TypeScriptTutorial.prototype.ShowInterfaceTutorial = function () {
+        var digital = createClock(DigitalClock, 12, 17);
+        var analog = createClock(AnalogClock, 7, 32);
+    };
+    TypeScriptTutorial.prototype.getCounter = function () {
+        var counter = function (start) { return "counter:" + start; };
+        counter.interval = 123;
+        counter.reset = function () { };
+        return counter;
+    };
+    TypeScriptTutorial.prototype.ShowMixInterface = function () {
+        var c = this.getCounter();
+        console.log(c(10));
+        c.reset();
+        c.interval = 5.0;
+    };
     return TypeScriptTutorial;
 }());
 __reflect(TypeScriptTutorial.prototype, "TypeScriptTutorial");
+function createClock(ctor, hour, minute) {
+    return new ctor(hour, minute);
+}
+var DigitalClock = (function () {
+    function DigitalClock(h, m) {
+        console.log("DigitalClock constructor");
+    }
+    DigitalClock.prototype.tick = function () {
+        console.log("beep beep");
+    };
+    return DigitalClock;
+}());
+__reflect(DigitalClock.prototype, "DigitalClock", ["ClockInterface"]);
+var AnalogClock = (function () {
+    function AnalogClock(h, m) {
+        console.log("AnalogClock constructor");
+    }
+    AnalogClock.prototype.tick = function () {
+        console.log("tick tock");
+    };
+    return AnalogClock;
+}());
+__reflect(AnalogClock.prototype, "AnalogClock", ["ClockInterface"]);
 //# sourceMappingURL=TypeScriptTutorial.js.map
