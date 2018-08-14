@@ -1,86 +1,3 @@
-
-
-########变量声明定义
-#let        在一个作用域下只能定义一次(for多层循环可多次定义且后定义会覆盖前者) 可传入函数形成闭包 即生成单独的执行环境
-            let使用的是词法作用域或块作用域 超出作用域之外是无法再访问的
-#var        在一个作用域下可重复多次定义 不可形成闭包 var作用域或函数作用域 
-            var声明可以在包含它的函数，模块，命名空间或全局作用域内部任何位置被访问 代码块定义不影响访问
-#const      作用域规则同let 赋值后值不可再改变
-
-
-########基础数据类型
-#boolean    false | true 布尔值
-#number     数字(浮点数) 十进制 八进制 十六进制 二进制均可定义 由赋值前缀决定
-#string     字符串 可以使用双引号"及单引号‘表示 字符串内嵌表达式 ${变量名或表达式} (像jsp之类的网页脚本)
-#[] Array   数组 支持固定数组和泛型数组 let list: number[] = [1, 2, 3] or Array<number> 数组下标从0开始？
-
-#元组Tuple  类似hashtable let x: [string, number] x[0] = key x[1] = value
-            当访问越界元素时 会使用联合类似(联合定义的限制类型 string | number) 
-            x[3] = 'word' //ok 字符串可以赋值给(string | number)类型
-
-#enum       枚举
-#Any        用于定义编译阶段还不确定的类型 类似Object差异于Any可以直接调用任意该类型上存在的方法 而不用转类型
-            也可用于定义Any[]数组
-
-#Void       和Any相反 表示没有任何类型 void类型变量只能赋值null或者undefined   
-#Null和Undefined 默认情况下 该两者是所有类型的子类型 可以把 null和undefined赋值给所有类型
-#--strictNullChecks 严格空检查 null和undefined只能赋值给void和它们各自 此时基础数据类型不可再赋值null和undefined
-#Never      永不存在的值的类型 一般用于函数返回值：抛出异常 返回异常 死循环永不返回
-
-####类型断言
-            <数据类型>变量名 or 变量名 as 数据类型 
-            类型断言好比其它语言里的类型转换，但是不进行特殊的数据检查和解构。 它没有运行时的影响，只是在编译阶段起作用。
-            TypeScript会假设你，程序员，已经进行了必须的检查
-
-####解构
-##数组及变量解构 用[ ]
-#变量赋值   let input = [1, 2]; let [a, b] = input; //a b相当于定义的两个新变量
-#函数参数   function f([first, second] : [number, number]) { }  f(input);  
-#赋值变体   let[first, ...rest] = [1,2,3,4] //...语法创建剩余变量 rest = [2,3,4]
-           let [first] = [1,2,3,4]; //first = 1 
-           let [, second, , fourth] = [1, 2, 3, 4];
-           //很像Lua的一些赋值规则
-##对象解构 用{ } 
-#对象解构   let o = { a: "foo",  b: 12, c: "bar" }; let { a, b } = o;
-
-           //注意，我们需要用括号将它括起来，因为Javascript通常会将以 { 起始的语句解析为一个块。
-           解构匿名对象 ({ a, b } = { a: "baz", b: 101 }); 
-
-           //你可以在对象里使用...语法创建剩余变量
-           let { a, ...passthrough } = o;
-           let total = passthrough.b + passthrough.c.length; 
-
-           //属性重命名 
-           let { a: newName1, b: newName2 } = o; 
-
-           //默认值 默认值可以让你在属性为 undefined 时使用缺省值  ?:可选参数
-           function keepWholeObject(wholeObject: { a: string, b?: number }) {
-                let { a, b = 1001 } = wholeObject;
-           }
-
-#解构用于函数声明
-            //:用于标记类似规范性约束或继承关系
-            type C = { a: string, b?: number }
-            function f({ a, b }: C): void { }
-            //指定函数默认参数值
-            function f({ a, b } = { a: "", b: 0 }): void { }
-
-            function f({ a, b = 0 } = { a: "" }): void { }
-            // ok, default b = 0
-            f({ a: "yes" }); 
-            // ok, default to {a: ""}, which then defaults b = 0
-            f(); 
-            // error, 'a' is required if you supply an argument
-            f({}); 
-
-
-####展开 与解构相反
-            展开成对象 可用...连接 后续的同属性会覆盖前面已有的属性
-            TypeScript编译器不允许展开泛型函数上的类型参数
-            对象展开只能展开对象的自身的可枚举属性。 不可展开接口
-
-
-#默认接口及class的作用域是public
 ############接口
             #TypeScript的核心原则之一是对值所具有的结构进行类型检查
             #TypeScript里，接口的作用就是为这些类型命名和为你的代码或第三方代码定义契约
@@ -141,12 +58,47 @@
             }
             #索引签名可以设置为只读 那么赋值后就不可再对索引赋值
 
+####面向对象规则
+#可覆盖重写父类接口
+#默认修饰符 public
 
 #########面向对象相关关键字
+#class          类
 #extends        继承class
 #implements     实现接口 
 #constructor    类构造器
+#super          父类
+#this           当前类
+#public         到处均可访问
+#private        只能当前类访问
+#protected      当前类及子类
+#readonly       只读属性必须在声明时或构造函数里被初始化
 
+#####TypeScript使用的是结构性类型系统。 当我们比较两种不同的类型时，并不在乎它们从何处而来，
+        如果所有成员的类型都是兼容的，我们就认为它们的类型是兼容的。
+        然而，当我们比较带有 private或 protected成员的类型的时候，情况就不同了。 如果其中一个
+        类型里包含一个 private成员，那么只有当另外一个类型中也存在这样一个 private成员， 并且它们
+        都是来自！！同一处！！声明时，我们才认为这两个类型是兼容的。 对于 protected成员也使用这个规则。
+        class Animal {
+            private name: string;
+            constructor(theName: string) { this.name = theName; }
+        }
+        class Rhino extends Animal {
+            constructor() { super("Rhino"); }
+        }
+        class Employee {
+            private name: string;
+            constructor(theName: string) { this.name = theName; }
+        }
+        let animal = new Animal("Goat");
+        let rhino = new Rhino();
+        let employee = new Employee("Bob");
+
+        animal = rhino;
+        #错误: Animal 与 Employee 不兼容. 此处编译不过的原因和下面接口继承类的示例编译原理应该类似
+        animal = employee; 
+        #把Employee赋值给 Animal的时候，得到一个错误，说它们的类型不兼容。 尽管 Employee里也有一个
+        私有成员 name，但它明显不是 Animal里面定义的那个。
 
 ####接口表示类类型
             #类实现一个接口时，只会对实例部分进行类型检查 静态部分不会检查(构造方法属于静态部分)
@@ -244,3 +196,12 @@
         在上面的例子里，SelectableControl包含了Control的所有成员，包括私有成员state。 因为 state是私有成员，
         所以只能够是Control的子类们才能实现SelectableControl接口。 因为只有 Control的子类才能够拥有一个声明
         于Control的私有成员state，###！！！这对私有成员的兼容性是必需的。
+
+
+##########类
+#参数属性   在类中的构造函数给参数加上private protected public修饰符时 会自动生成相应访问限定符的属性。
+#存取器     #set get关键字
+            private _fullName: string;
+            get fullName(): string { return this._fullName; }
+            set fullName(newName: string) { this._fullName = newName; }
+

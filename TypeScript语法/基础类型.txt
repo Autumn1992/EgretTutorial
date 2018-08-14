@@ -1,0 +1,70 @@
+########基础数据类型
+#boolean    false | true 布尔值
+#number     数字(浮点数) 十进制 八进制 十六进制 二进制均可定义 由赋值前缀决定
+#string     字符串 可以使用双引号"及单引号‘表示 字符串内嵌表达式 ${变量名或表达式} (像jsp之类的网页脚本)
+#[] Array   数组 支持固定数组和泛型数组 let list: number[] = [1, 2, 3] or Array<number> 数组下标从0开始？
+
+#元组Tuple  类似hashtable let x: [string, number] x[0] = key x[1] = value
+            当访问越界元素时 会使用联合类似(联合定义的限制类型 string | number) 
+            x[3] = 'word' //ok 字符串可以赋值给(string | number)类型
+
+#enum       枚举
+#Any        用于定义编译阶段还不确定的类型 类似Object差异于Any可以直接调用任意该类型上存在的方法 而不用转类型
+            也可用于定义Any[]数组
+
+#Void       和Any相反 表示没有任何类型 void类型变量只能赋值null或者undefined   
+#Null和Undefined 默认情况下 该两者是所有类型的子类型 可以把 null和undefined赋值给所有类型
+#--strictNullChecks 严格空检查 null和undefined只能赋值给void和它们各自 此时基础数据类型不可再赋值null和undefined
+#Never      永不存在的值的类型 一般用于函数返回值：抛出异常 返回异常 死循环永不返回
+
+####类型断言
+            <数据类型>变量名 or 变量名 as 数据类型 
+            类型断言好比其它语言里的类型转换，但是不进行特殊的数据检查和解构。 它没有运行时的影响，只是在编译阶段起作用。
+            TypeScript会假设你，程序员，已经进行了必须的检查
+
+####解构
+##数组及变量解构 用[ ]
+#变量赋值   let input = [1, 2]; let [a, b] = input; //a b相当于定义的两个新变量
+#函数参数   function f([first, second] : [number, number]) { }  f(input);  
+#赋值变体   let[first, ...rest] = [1,2,3,4] //...语法创建剩余变量 rest = [2,3,4]
+           let [first] = [1,2,3,4]; //first = 1 
+           let [, second, , fourth] = [1, 2, 3, 4];
+           //很像Lua的一些赋值规则
+##对象解构 用{ } 
+#对象解构   let o = { a: "foo",  b: 12, c: "bar" }; let { a, b } = o;
+
+           //注意，我们需要用括号将它括起来，因为Javascript通常会将以 { 起始的语句解析为一个块。
+           解构匿名对象 ({ a, b } = { a: "baz", b: 101 }); 
+
+           //你可以在对象里使用...语法创建剩余变量
+           let { a, ...passthrough } = o;
+           let total = passthrough.b + passthrough.c.length; 
+
+           //属性重命名 
+           let { a: newName1, b: newName2 } = o; 
+
+           //默认值 默认值可以让你在属性为 undefined 时使用缺省值  ?:可选参数
+           function keepWholeObject(wholeObject: { a: string, b?: number }) {
+                let { a, b = 1001 } = wholeObject;
+           }
+
+#解构用于函数声明
+            //:用于标记类似规范性约束或继承关系
+            type C = { a: string, b?: number }
+            function f({ a, b }: C): void { }
+            //指定函数默认参数值
+            function f({ a, b } = { a: "", b: 0 }): void { }
+
+            function f({ a, b = 0 } = { a: "" }): void { }
+            // ok, default b = 0
+            f({ a: "yes" }); 
+            // ok, default to {a: ""}, which then defaults b = 0
+            f(); 
+            // error, 'a' is required if you supply an argument
+            f({}); 
+
+
+####展开 与解构相反
+            展开成对象 可用...连接 后续的同属性会覆盖前面已有的属性
+            TypeScript编译器不允许展开泛型函数上的类型参数
+            对象展开只能展开对象的自身的可枚举属性。 不可展开接口
