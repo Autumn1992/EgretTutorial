@@ -73,6 +73,9 @@
 #private        只能当前类访问
 #protected      当前类及子类
 #readonly       只读属性必须在声明时或构造函数里被初始化
+#static         修饰静态属性
+#abstract       定义抽象类or接口 不同于接口 抽象类可以包含成员的实现细节
+#typeof         取某个类具体的类型 相当于拿到别名 类似typedef
 
 #####TypeScript使用的是结构性类型系统。 当我们比较两种不同的类型时，并不在乎它们从何处而来，
         如果所有成员的类型都是兼容的，我们就认为它们的类型是兼容的。
@@ -205,3 +208,15 @@
             get fullName(): string { return this._fullName; }
             set fullName(newName: string) { this._fullName = newName; }
 
+#构造函数    let greeterMaker: typeof Greeter = Greeter; 
+            #把greeterMaker当作类型别名使用 此处定义方式 可用于数据驱动定义类
+            let grt = new greeterMaker();
+#把类当作接口使用
+            class Point {
+                x: number;
+                y: number;
+            }
+            interface Point3d extends Point {
+                z: number;
+            }
+            let point3d: Point3d = {x: 1, y: 2, z: 3};
