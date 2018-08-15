@@ -1,0 +1,140 @@
+
+########函数 
+                #函数的定义
+                #TS 函数访问修饰符 函数名 函数参数 函数返回值
+                #JS function 函数名 函数参数 函数返回值
+
+#返回类型       TypeScript能够根据返回值自动推断出返回值类型，因此我们通常省略它。
+#完整函数类型    let myAdd: (x: number, y: number) => number =
+                    function(x: number, y: number): number { return x + y; };
+                #myAdd变量名   (x: number, y: number)参数 => number返回值
+                #推断类型 下面会自动推断出函数类型
+                let myAdd: (baseValue: number, increment: number) => number =
+                    function(x, y) { return x + y; };
+
+#可选参数和默认参数
+                #可选参数 参数名?: 参数类型  且可选参数必须在参数列表的末尾
+
+                #默认参数 参数名=默认参数值  参数的类型会根据给的默认参数值推断出类型
+                默认参数不必必须放在必须参数后面 但是传值时必须穿undefined或是你真正要传的值
+                传undefined就像时c#不传值让参数取默认值一样的效果
+
+                #剩余参数 不定数参数 ...restOfParams: 类型数组(string[])
+
+#this和箭头函数  
+                let deck = {
+                suits: ["hearts", "spades", "clubs", "diamonds"],
+                createCardPicker: function() {
+                        return function() {
+                            let pickedCard = Math.floor(Math.random() * 52);
+                            let pickedSuit = Math.floor(pickedCard / 13);
+
+                            return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+                        }
+                    }
+                }
+                let cardPicker = deck.createCardPicker();
+                let pickedCard = cardPicker();    
+                #此处会报错 this是undefined或者是顶层window      
+                #为了解决这个问题，我们可以在函数被返回时就绑好正确的this。 这样的话，无论之后怎么使用它，都会引用绑定的‘deck’对象。 
+                我们需要改变函数表达式来使用ECMAScript 6箭头语法。 ###箭头函数能保存函数创建时的 this值，而不是调用时的值：### 
+                let deck = {
+                suits: ["hearts", "spades", "clubs", "diamonds"],
+                createCardPicker: function() {
+                        // NOTE: the line below is now an arrow function, allowing us to capture 'this' right here
+                        return () => {
+                            let pickedCard = Math.floor(Math.random() * 52);
+                            let pickedSuit = Math.floor(pickedCard / 13);
+
+                            return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+                        }
+                    }
+                }
+                #注此处 this的类型为any 箭头函数能保存函数创建时的 this值，而不是调用时的值这句话的意思我猜工作原理应该是：
+                如下面的指定this作为函数参数一样 函数调用内部编译默认是将调用者本身当作this指针传进去了的 因为是一个公用逻辑
+                所以this被指定为了any 等价于下面函数签名this指定为any类型的特殊情况。
+                
+                
+#this参数       ##注：此处createCardPicker(this: Deck): () => Card; 返回值类型是带箭头函数的 下面实现也是 保持同步 匿名函数返回值为匹配Card签名结构
+                #经测试 工作原理应是：当函数参数名为this时且类型能兼容调用方类型时，自动传入调用者为this参数。
+                #上述所谓类型兼容 指与函数签名兼容 譬如函数签名改成createCardPicker(this: any): () => Card;
+                #此时下面createCardPicker: function(this: Deck)中Deck改成Number也会是编译得过的 因为编译时只判断
+                编译时函数签名是否兼容，此时调用方兼容this: any的定义 而实现方this: Number也是兼容this: any的定义
+                运行时才能判断最终的执行兼容性
+                #Hack：神奇的一匹 函数实现this类型改成Number后能正常运行 运行至该处断点显示就是Deck类型的Object
+                #可能此处指定的类型Number只限定其编译阶段的语法吧，运行时没做强制转换一类的 Maybe是Ts的运行时决定的
+                #在实现某个签名时内存中最终存储的类型还是具体传入的类型 运行时没有做严格的检查 Maybe有个开关设置什么鬼的限制强制的类型匹配。
+                interface Card {
+                    suit: string;
+                    card: number;
+                }
+                interface Deck {
+                    suits: string[];
+                    cards: number[];
+                    createCardPicker(this: Deck): () => Card;
+                }
+                let deck: Deck = {
+                    suits: ["hearts", "spades", "clubs", "diamonds"],
+                    cards: Array(52),
+                    // NOTE: The function now explicitly specifies that its callee must be of type Deck
+                    createCardPicker: function(this: Deck) {
+                        return () => {
+                            let pickedCard = Math.floor(Math.random() * 52);
+                            let pickedSuit = Math.floor(pickedCard / 13);
+
+                            return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+                        }
+                    }
+                }
+
+                let cardPicker = deck.createCardPicker();
+                let pickedCard = cardPicker();
+
+
+#this参数在回调函数里 注意此处()=>匿名函数定义方式的使用 匿名函数每次创建对象都会维护一个新的匿名函数。 而正常的函数定义则不同 函数指针不同对象是持有的同一个
+                    所有匿名函数才具有这种特殊的功能，用Lua的话来说就是实现闭包 可以实现一些有趣的功能和逻辑
+
+                    interface UIElement {
+                        addClickListener(onclick: (this: void, e: Event) => void): void;
+                    }
+                    class Handler {
+                        info: string;
+                        onClickBad(this: Handler, e: Event) {
+                            // oops, used this here. using this callback would crash at runtime
+                            this.info = e.message;
+                        }
+                    }
+                    let h = new Handler();
+                    uiElement.addClickListener(h.onClickBad); // error! 函数签名和uiElement.addClickListener所定义的对不上
+                    #匿名函数实现保存创建时的this指针
+                    class Handler {
+                        info: string;
+                        onClickGood = (e: Event) => { this.info = e.message }
+                    }
+
+#重载                #重载时会按重载列表从上往下查找符合的接口 所以 一定要把精确的定义放在最前面
+                    let suits = ["hearts", "spades", "clubs", "diamonds"];
+                    function pickCard(x: {suit: string; card: number; }[]): number;
+                    function pickCard(x: number): {suit: string; card: number; };
+                    function pickCard(x): any {
+                        // Check to see if we're working with an object/array
+                        // if so, they gave us the deck and we'll pick the card
+                        if (typeof x == "object") {
+                            let pickedCard = Math.floor(Math.random() * x.length);
+                            return pickedCard;
+                        }
+                        // Otherwise just let them pick the card
+                        else if (typeof x == "number") {
+                            let pickedSuit = Math.floor(x / 13);
+                            return { suit: suits[pickedSuit], card: x % 13 };
+                        }
+                    }
+
+                    let myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
+                    let pickedCard1 = myDeck[pickCard(myDeck)];
+                    alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+
+                    let pickedCard2 = pickCard(15);
+                    alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
+                    #error 参数签名不符 重载已经限定了参数签名  
+                    //alert(pickCard(()=>{ }));

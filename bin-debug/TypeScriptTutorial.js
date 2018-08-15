@@ -6,9 +6,11 @@ var TypeScriptTutorial = (function () {
         this.showTutorial();
     }
     TypeScriptTutorial.prototype.showTutorial = function () {
-        this.basicDataTypeTutorial();
-        this.ShowInterfaceTutorial();
-        this.ShowMixInterface();
+        //this.basicDataTypeTutorial();
+        //this.ShowInterfaceTutorial();
+        //this.ShowMixInterface();
+        //this.ShowMethodThis();
+        this.ShowMethodOverride();
     };
     /**
      * 基础数据类型
@@ -130,9 +132,53 @@ var TypeScriptTutorial = (function () {
         c.reset();
         c.interval = 5.0;
     };
+    TypeScriptTutorial.prototype.ShowMethodThis = function () {
+        var cardPicker = deck.createCardPicker()();
+        egret.log(cardPicker.suit);
+    };
+    TypeScriptTutorial.prototype.ShowMethodOverride = function () {
+        var suits = ["hearts", "spades", "clubs", "diamonds"];
+        function pickCard(x) {
+            // Check to see if we're working with an object/array
+            // if so, they gave us the deck and we'll pick the card
+            if (typeof x == "object") {
+                var pickedCard = Math.floor(Math.random() * x.length);
+                return pickedCard;
+            }
+            else if (typeof x == "number") {
+                var pickedSuit = Math.floor(x / 13);
+                return { suit: suits[pickedSuit], card: x % 13 };
+            }
+            else {
+                return "unknow type";
+            }
+        }
+        var myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
+        var pickedCard1 = myDeck[pickCard(myDeck)];
+        alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+        var pickedCard2 = pickCard(15);
+        alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
+        alert(pickCard(function () { }));
+    };
     return TypeScriptTutorial;
 }());
 __reflect(TypeScriptTutorial.prototype, "TypeScriptTutorial");
+var deck = {
+    suits: ["hearts", "spades", "clubs", "diamonds"],
+    cards: Array(52),
+    // NOTE: The function now explicitly specifies that its callee must be of type Deck
+    createCardPicker: function () {
+        var _this = this;
+        return function () {
+            var pickedCard = Math.floor(Math.random() * 52);
+            var pickedSuit = Math.floor(pickedCard / 13);
+            egret.log(_this.toString());
+            egret.log(_this);
+            //return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+            return { suit: "111", card: 1 };
+        };
+    }
+};
 function createClock(ctor, hour, minute) {
     return new ctor(hour, minute);
 }

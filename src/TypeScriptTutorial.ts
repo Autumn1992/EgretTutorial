@@ -7,9 +7,11 @@ class TypeScriptTutorial {
 
     private showTutorial(): void {
 
-        this.basicDataTypeTutorial();
-        this.ShowInterfaceTutorial();
-        this.ShowMixInterface();
+        //this.basicDataTypeTutorial();
+        //this.ShowInterfaceTutorial();
+        //this.ShowMixInterface();
+        //this.ShowMethodThis();
+        this.ShowMethodOverride();
     }
 
     /**
@@ -159,6 +161,102 @@ class TypeScriptTutorial {
         console.log(c(10));
         c.reset();
         c.interval = 5.0;
+    }
+
+    private ShowMethodThis(){
+
+        let cardPicker = deck.createCardPicker()();
+        egret.log(cardPicker.suit);
+    }
+
+    //未加重载签名的重载 不会限定参数签名
+    private ShowMethodOverride(){
+
+        let suits = ["hearts", "spades", "clubs", "diamonds"];
+
+        function pickCard(x): any {
+            // Check to see if we're working with an object/array
+            // if so, they gave us the deck and we'll pick the card
+            if (typeof x == "object") {
+                let pickedCard = Math.floor(Math.random() * x.length);
+                return pickedCard;
+            }
+            // Otherwise just let them pick the card
+            else if (typeof x == "number") {
+                let pickedSuit = Math.floor(x / 13);
+                return { suit: suits[pickedSuit], card: x % 13 };
+            }else{
+
+                return "unknow type";
+            }
+        }
+
+        let myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
+        let pickedCard1 = myDeck[pickCard(myDeck)];
+        alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+
+        let pickedCard2 = pickCard(15);
+        alert("card: " + pickedCard2.card + " of " + pickedCard2.suit); 
+        
+        alert(pickCard(()=>{ }));
+    }
+
+    //加重载签名的重载 会限定参数签名
+    private ShowMethodOverride1(){
+
+        let suits = ["hearts", "spades", "clubs", "diamonds"];
+
+        function pickCard(x: {suit: string; card: number; }[]): number;
+        function pickCard(x: number): {suit: string; card: number; };
+        function pickCard(x): any {
+            // Check to see if we're working with an object/array
+            // if so, they gave us the deck and we'll pick the card
+            if (typeof x == "object") {
+                let pickedCard = Math.floor(Math.random() * x.length);
+                return pickedCard;
+            }
+            // Otherwise just let them pick the card
+            else if (typeof x == "number") {
+                let pickedSuit = Math.floor(x / 13);
+                return { suit: suits[pickedSuit], card: x % 13 };
+            }
+        }
+
+        let myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
+        let pickedCard1 = myDeck[pickCard(myDeck)];
+        alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+
+        let pickedCard2 = pickCard(15);
+        alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
+
+        //error 参数签名不符 重载已经限定了参数签名  
+        //alert(pickCard(()=>{ }));
+    }
+}
+
+interface Card {
+    suit: string;
+    card: number;
+}
+interface Deck {
+    suits: string[];
+    cards: number[];
+    createCardPicker(this: any): () => Card;
+}
+let deck: Deck = {
+    suits: ["hearts", "spades", "clubs", "diamonds"],
+    cards: Array(52),
+    // NOTE: The function now explicitly specifies that its callee must be of type Deck
+    createCardPicker: function(this : number) {
+        return () => {
+            let pickedCard = Math.floor(Math.random() * 52);
+            let pickedSuit = Math.floor(pickedCard / 13);
+
+            egret.log(this.toString());
+            egret.log(this);
+            //return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+            return { suit: "111", card: 1};
+        }
     }
 }
 
