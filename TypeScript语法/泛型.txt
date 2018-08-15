@@ -1,0 +1,59 @@
+
+
+####泛型 类型约束 
+            泛型类定义约束规则 不实现
+            class GenericNumber<T> {
+                zeroValue: T;
+                add: (x: T, y: T) => T;
+            }
+
+            let myGenericNumber = new GenericNumber<number>();
+            myGenericNumber.zeroValue = 0;
+            myGenericNumber.add = function(x, y) { return x + y; };
+            
+#泛型约束    #约束T继承Lengthwise 就可以访问到想要的属性
+            interface Lengthwise {
+                length: number;
+            }
+
+            function loggingIdentity<T extends Lengthwise>(arg: T): T {
+                console.log(arg.length);  // Now we know it has a .length property, so no more error
+                return arg;
+            }
+            
+            #在泛型约束中使用类型参数 注：不知为何 这个示例编译不过 提示找不到T K
+            function getProperty(obj: T, key: K) {
+                return obj[key];
+            }
+
+            let x = { a: 1, b: 2, c: 3, d: 4 };
+
+            getProperty(x, "a"); // okay
+            getProperty(x, "m"); // error 没有m
+
+            #在泛型里使用类类型
+            #在TypeScript使用泛型创建工厂函数时，需要引用构造函数的类类型。比如，
+            function create<T>(c: {new(): T; }): T {
+                return new c();
+            }
+            #更高级的示例
+            class BeeKeeper {
+                hasMask: boolean;
+            }
+            class ZooKeeper {
+                nametag: string;
+            }
+            class Animal {
+                numLegs: number;
+            }
+            class Bee extends Animal {
+                keeper: BeeKeeper;
+            }
+            class Lion extends Animal {
+                keeper: ZooKeeper;
+            }
+            function createInstance<A extends Animal>(c: new () => A): A {
+                return new c();
+            }
+            createInstance(Lion).keeper.nametag;  // typechecks!
+            createInstance(Bee).keeper.hasMask;   // typechecks!
