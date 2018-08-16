@@ -1,0 +1,25 @@
+
+
+##导出及导入
+#任何包含顶级import或者export的文件都被当成一个模块。相反地，如果一个文件不带有顶级的import
+或者export声明，那么它的内容被视为全局可见的（因此对模块也是可见的）。
+
+#export     
+            #导出可选择导出后重命名 及别名    export { 源名 as 新名字}
+            #export xxx from "路径(文件名不需要后缀)" ;
+            
+#import     #导入一个模块中的某个导出内容 
+            import { ZipCodeValidator } from "./ZipCodeValidator";
+
+            #对导入内容重命名：import { xxx as xxx } from "";
+
+            #将整个模块导入到一个变量，并通过它来访问模块的导出部分
+            import * as validator from "./ZipCodeValidator";
+            let myValidator = new validator.ZipCodeValidator();
+
+#具有副作用的导入模块
+            尽管不推荐这么做，一些模块会设置一些全局状态供其它模块使用。 这些模块可能没有任何的
+            导出或用户根本就不关注它的导出。 使用下面的方法来导入这类模块：
+            import "./my-module.js";
+
+#默认导出    #规则太多 略过 
