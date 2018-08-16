@@ -1,0 +1,34 @@
+
+#let        在一个作用域下只能定义一次(for多层循环可多次定义且后定义会覆盖前者) 可传入函数形成闭包 即生成单独的执行环境
+            let使用的是词法作用域或块作用域 超出作用域之外是无法再访问的
+#var        在一个作用域下可重复多次定义 不可形成闭包 var作用域或函数作用域 
+            var声明可以在包含它的函数，模块，命名空间或全局作用域内部任何位置被访问 代码块定义不影响访问
+#const      作用域规则同let 赋值后值不可再改变
+#readonly   修饰属性 只能在创建时或构造函数内赋值 
+#function   函数名前缀修饰
+#===        等于
+#!==        不等于
+#||         或操作 类似Lua的or
+#type       定义类型别名
+#instanceof     instanceof的右侧要求是一个构造函数，TypeScript将细化为：
+                此构造函数的 prototype属性的类型，如果它的类型不为 any的话
+                构造签名所返回的类型的联合
+#null undefined
+#declare    标识是外部变量
+
+#class          类
+#extends        继承class
+#implements     实现接口 
+#constructor    类构造器
+#super          父类
+#this           当前类
+#public         到处均可访问
+#private        只能当前类访问
+#protected      当前类及子类
+#readonly       只读属性必须在声明时或构造函数里被初始化
+#static         修饰静态属性
+#abstract       定义抽象类or接口 不同于接口 抽象类可以包含成员的实现细节
+#typeof         取某个类具体的类型 相当于拿到别名 类似typedef
+                typeof 类型名(类名)
+                typeof 变量名 返回的是变量的类型(字符串)
+

@@ -136,6 +136,7 @@ var TypeScriptTutorial = (function () {
         var cardPicker = deck.createCardPicker()();
         egret.log(cardPicker.suit);
     };
+    //未加重载签名的重载 不会限定参数签名
     TypeScriptTutorial.prototype.ShowMethodOverride = function () {
         var suits = ["hearts", "spades", "clubs", "diamonds"];
         function pickCard(x) {
@@ -155,10 +156,36 @@ var TypeScriptTutorial = (function () {
         }
         var myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
         var pickedCard1 = myDeck[pickCard(myDeck)];
+        //alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+        var pickedCard2 = pickCard(15);
+        var keys; // string
+        var tt = {};
+        tt['foo'] = 1;
+        var value = tt['foo']; // number
+        egret.log(value);
+    };
+    //加重载签名的重载 会限定参数签名
+    TypeScriptTutorial.prototype.ShowMethodOverride1 = function () {
+        var suits = ["hearts", "spades", "clubs", "diamonds"];
+        function pickCard(x) {
+            // Check to see if we're working with an object/array
+            // if so, they gave us the deck and we'll pick the card
+            if (typeof x == "object") {
+                var pickedCard = Math.floor(Math.random() * x.length);
+                return pickedCard;
+            }
+            else if (typeof x == "number") {
+                var pickedSuit = Math.floor(x / 13);
+                return { suit: suits[pickedSuit], card: x % 13 };
+            }
+        }
+        var myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
+        var pickedCard1 = myDeck[pickCard(myDeck)];
         alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
         var pickedCard2 = pickCard(15);
         alert("card: " + pickedCard2.card + " of " + pickedCard2.suit);
-        alert(pickCard(function () { }));
+        //error 参数签名不符 重载已经限定了参数签名  
+        //alert(pickCard(()=>{ }));
     };
     return TypeScriptTutorial;
 }());

@@ -193,12 +193,22 @@ class TypeScriptTutorial {
 
         let myDeck = [{ suit: "diamonds", card: 2 }, { suit: "spades", card: 10 }, { suit: "hearts", card: 4 }];
         let pickedCard1 = myDeck[pickCard(myDeck)];
-        alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
+        //alert("card: " + pickedCard1.card + " of " + pickedCard1.suit);
 
         let pickedCard2 = pickCard(15);
-        alert("card: " + pickedCard2.card + " of " + pickedCard2.suit); 
+        //alert("card: " + pickedCard2.card + " of " + pickedCard2.suit); 
         
-        alert(pickCard(()=>{ }));
+        //alert(pickCard(()=>{ }));
+
+        interface Map<T> {
+            [key: string]: T;
+        }
+        let keys: keyof Map<number>; // string
+        
+        let tt : Map<number> = { };
+        tt['foo'] = 1;
+        let value = tt['foo']; // number
+        egret.log(value);
     }
 
     //加重载签名的重载 会限定参数签名
