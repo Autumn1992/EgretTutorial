@@ -209,6 +209,7 @@ class TypeScriptTutorial {
         tt['foo'] = 1;
         let value = tt['foo']; // number
         egret.log(value);
+
     }
 
     //加重载签名的重载 会限定参数签名

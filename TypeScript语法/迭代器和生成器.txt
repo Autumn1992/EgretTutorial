@@ -1,0 +1,17 @@
+
+
+##迭代器和生成器
+
+#for of     遍历迭代的是迭代对象的值
+#for in     遍历迭代对象的key  可以操作任何对象
+
+let pets = new Set(["Cat", "Dog", "Hamster"]);
+pets["species"] = "mammals";
+
+for (let pet in pets) {
+    console.log(pet); // "species"  #wtf 看不懂的打印
+}
+
+for (let pet of pets) {
+    console.log(pet); // "Cat", "Dog", "Hamster"  #wtf 看不懂的打印
+}
