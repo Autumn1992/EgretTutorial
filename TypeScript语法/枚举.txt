@@ -1,0 +1,82 @@
+
+
+####枚举
+
+##两者枚举类型可共存 但一般不这么用
+#数字型枚举
+#字符串型枚举
+
+#枚举可=表达式or方法
+        enum FileAccess {
+            // constant members
+            None,
+            Read    = 1 << 1,
+            Write   = 1 << 2,
+            ReadWrite  = Read | Write,
+            // computed member
+            G = "123".length
+        }
+
+#枚举成员是类型    此时接口只能用于枚举 不能用于赋值
+        enum ShapeKind {
+            Circle,
+            Square,
+        }
+
+        interface Circle {
+            kind: ShapeKind.Circle;
+            radius: number;
+        }
+        interface Square {
+            kind: ShapeKind.Square;
+            sideLength: number;
+        }
+
+        let c: Circle = {
+            kind: ShapeKind.Square,
+            //    ~~~~~~~~~~~~~~~~ Error!
+            radius: 100,
+        }
+
+#另一个变化是枚举类型本身变成了每个枚举成员的 联合。
+        enum E {
+            Foo,
+            Bar,
+        }
+        function f(x: E) {
+            if (x !== E.Foo || x !== E.Bar) {
+                //             ~~~~~~~~~~~
+                // Error! Operator '!==' cannot be applied to types 'E.Foo' and 'E.Bar'.
+            }
+        }
+        #我们先检查 x是否不是 E.Foo。 如果通过了这个检查，然后 ||会发生短路效果， if语句体里的内容会被执行。 
+        然而，这个检查没有通过，那么 x则 只能为 E.Foo，因此没理由再去检查它是否为 E.Bar
+
+#运行时枚举 作为参数传递 
+        enum E {
+            X, Y, Z
+        }
+        function f(obj: { X: number }) {
+            return obj.X;
+        }
+        // Works, since 'E' has a property named 'X' which is a number.
+        f(E);
+
+#反向映射
+        #要注意的是 不会为字符串枚举成员生成反向映射。 只会为数字枚举生成反向映射
+        enum Enum {
+            A
+        }
+        let a = Enum.A;
+        let nameOfA = Enum[a]; // "A"
+
+#常量枚举 
+        const修饰的常量枚举 只能使用常量枚举表达式：即不能是动态调用函数之类的
+        编译阶段会被删除，而使用的地方会直接内联 像c里面的inline编译时直接常量替换
+
+#外部枚举
+        declare enum Enum {
+            A = 1,
+            B,
+            C = 2
+        }
